@@ -184,15 +184,27 @@ The skill reads this file automatically during execution.
 
 ## Usage
 
-Open a terminal and start Claude Code:
+### Important: Permission mode
+
+This skill launches many agents, runs bash commands, reads/writes files, and uses browser automation. In normal mode, Claude Code will ask for permission on **every single action** — which makes it unusable for this workflow.
+
+You need to run Claude Code with **bypass permissions** enabled:
 
 ```bash
-claude
+claude --dangerously-skip-permissions
 ```
 
-Then run the skill with a Google Play URL:
+This lets Claude execute all tools without asking for confirmation. The terminal prompt changes from `>` to `⏵⏵` to indicate you're in bypass mode.
 
-```
+> **Warning**: This flag gives Claude full access to your system (files, terminal, browser). Only use it if you understand and accept the risks. The skill only writes to `~/Desktop/full-pack-generator-runs/` and `~/.claude/`.
+
+### Running the skill
+
+```bash
+# 1. Start Claude Code with bypass permissions
+claude --dangerously-skip-permissions
+
+# 2. Run the skill with a Google Play URL
 /full-pack-generator https://play.google.com/store/apps/details?id=com.example.app
 ```
 
