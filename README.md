@@ -85,12 +85,60 @@ python3 --version
 pip3 install requests
 ```
 
-### 4. Playwright (for web scraping and HTML screenshots)
+### 4. Playwright MCP Server (for web scraping)
 
-Claude Code uses Playwright to scrape Google Play, visit developer websites, and screenshot HTML mockups.
+The skill uses Playwright MCP to scrape Google Play, visit developer websites, and take screenshots. You need to configure it as an MCP server in Claude Code.
+
+**Option A: Use the official Playwright MCP (recommended)**
+
+Add this to your Claude Code MCP settings. You can do this by running:
 
 ```bash
-# Install Playwright browsers
+claude mcp add playwright -- npx @playwright/mcp@latest
+```
+
+This registers a Playwright MCP server that Claude Code can use for browser automation.
+
+**Option B: Manual configuration**
+
+Create or edit `~/.claude.json` and add:
+
+```json
+{
+  "mcpServers": {
+    "playwright": {
+      "command": "npx",
+      "args": ["@playwright/mcp@latest"]
+    }
+  }
+}
+```
+
+**For better parallelism** (optional): The skill launches 3 research agents simultaneously. Each agent needs its own browser. If you want true parallelism, add multiple Playwright MCP servers:
+
+```json
+{
+  "mcpServers": {
+    "playwright": {
+      "command": "npx",
+      "args": ["@playwright/mcp@latest"]
+    },
+    "playwright-2": {
+      "command": "npx",
+      "args": ["@playwright/mcp@latest"]
+    },
+    "playwright-3": {
+      "command": "npx",
+      "args": ["@playwright/mcp@latest"]
+    }
+  }
+}
+```
+
+With 1 MCP, the agents run sequentially (still works, just slower). With 3, they run in true parallel.
+
+After configuring, install the Chromium browser:
+```bash
 npx playwright install chromium
 ```
 

@@ -25,7 +25,18 @@ If no Google Play URL is provided, ask the user for one before proceeding.
 1. Parse the Google Play URL from the input. Extract the package name (e.g., `com.example.app`).
 2. Set the Replicate API token:
    ```bash
-   export REPLICATE_API_TOKEN="$(grep -A2 'APIs - Replicate' ~/.claude/secrets.md | grep 'API Token' | sed 's/.*`\(.*\)`.*/\1/')"
+   # Option A: Already set as environment variable
+   # export REPLICATE_API_TOKEN="r8_..."
+
+   # Option B: Read from ~/.claude/secrets.md (if user has it configured there)
+   if [ -z "$REPLICATE_API_TOKEN" ] && [ -f "$HOME/.claude/secrets.md" ]; then
+     export REPLICATE_API_TOKEN="$(grep -A2 'Replicate' ~/.claude/secrets.md | grep -oE 'r8_[a-zA-Z0-9]+')"
+   fi
+
+   # Verify
+   if [ -z "$REPLICATE_API_TOKEN" ]; then
+     echo "ERROR: REPLICATE_API_TOKEN not set. See README for setup instructions."
+   fi
    ```
 3. Define the output base directory on the **DESKTOP** with versioning:
    ```bash
@@ -72,7 +83,7 @@ If no Google Play URL is provided, ask the user for one before proceeding.
 Launch **3 agents simultaneously** using the Agent tool. Each agent saves its results to files in `$BASE_DIR/research/`.
 
 ### Agent 1: "GP Extract — App Data"
-**MCP**: Use `mcp__playwright-google__*` tools (Google service).
+**MCP**: Use any available Playwright MCP tools (e.g. `mcp__playwright__*`). If multiple Playwright MCPs are available, assign different ones to each agent for true parallelism.
 
 Instructions for agent:
 1. Navigate to the Google Play URL
@@ -92,7 +103,7 @@ Instructions for agent:
 6. Save all metadata to `$BASE_DIR/research/app-data.json`
 
 ### Agent 2: "Web Scraper — Branding"
-**MCP**: Use `mcp__playwright-pool-1__*` tools.
+**MCP**: Use an available Playwright MCP (different from Agent 1 if possible for parallelism).
 
 Instructions for agent:
 1. Read `$BASE_DIR/research/app-data.json` (wait for Agent 1 to create it, or use the developer URL from the Google Play page)
@@ -116,7 +127,7 @@ Instructions for agent:
    ```
 
 ### Agent 3: "Review Analyzer"
-**MCP**: Use `mcp__playwright-pool-2__*` tools.
+**MCP**: Use an available Playwright MCP (different from Agents 1-2 if possible).
 
 Instructions for agent:
 1. Navigate to the Google Play URL

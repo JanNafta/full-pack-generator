@@ -63,7 +63,7 @@ else
     fi
 fi
 
-# Playwright
+# Playwright Chromium
 if npx playwright --version &>/dev/null 2>&1; then
     echo "  ✓ Playwright: installed"
 else
@@ -73,6 +73,23 @@ else
         MISSING=1
     }
     echo "  ✓ Playwright Chromium: installed"
+fi
+
+# Playwright MCP
+if command -v claude &>/dev/null; then
+    # Check if playwright MCP is already configured
+    if claude mcp list 2>/dev/null | grep -q "playwright"; then
+        echo "  ✓ Playwright MCP: already configured"
+    else
+        echo "  ⚠ Playwright MCP: not configured"
+        echo "    Adding Playwright MCP server to Claude Code..."
+        claude mcp add playwright -- npx @playwright/mcp@latest 2>/dev/null && {
+            echo "  ✓ Playwright MCP: configured"
+        } || {
+            echo "    Could not auto-configure. Add manually:"
+            echo "    claude mcp add playwright -- npx @playwright/mcp@latest"
+        }
+    fi
 fi
 
 # Replicate API key
