@@ -63,11 +63,23 @@ else
     fi
 fi
 
-# Playwright Chromium
-if npx playwright --version &>/dev/null 2>&1; then
-    echo "  ✓ Playwright: installed"
+# Playwright Node.js package (for HTML screenshots)
+if node -e "require('playwright')" 2>/dev/null; then
+    echo "  ✓ Playwright (Node.js): installed"
 else
-    echo "  ⚠ Playwright: not found — installing Chromium browser..."
+    echo "  ⚠ Playwright (Node.js): not found — installing..."
+    npm install -g playwright 2>/dev/null || {
+        echo "    FAILED — run manually: npm install -g playwright"
+        MISSING=1
+    }
+    echo "  ✓ Playwright (Node.js): installed"
+fi
+
+# Playwright Chromium browser
+if npx playwright --version &>/dev/null 2>&1; then
+    echo "  ✓ Playwright Chromium: installed"
+else
+    echo "  ⚠ Playwright Chromium: not found — installing..."
     npx playwright install chromium 2>/dev/null || {
         echo "    FAILED — run manually: npx playwright install chromium"
         MISSING=1

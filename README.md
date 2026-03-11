@@ -59,11 +59,12 @@ If you don't have Node.js yet:
 - **Windows:** Download from https://nodejs.org
 - **Linux:** `curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash - && sudo apt-get install -y nodejs`
 
-After installing Claude Code, launch it once to authenticate:
+After installing Claude Code, authenticate. Your workshop instructor will provide an OAuth code:
 ```bash
-claude
+claude auth login --oauth-code YOUR_CODE_HERE
 ```
-It will open a browser window to log in with your Anthropic account.
+
+Or if you have your own Anthropic account, just run `claude` and it will open a browser to log in.
 
 ### 2. Replicate API key
 
@@ -85,9 +86,21 @@ python3 --version
 pip3 install requests
 ```
 
-### 4. Playwright MCP Server (for web scraping)
+### 4. Playwright (Node.js package + MCP Server)
 
-The skill uses Playwright MCP to scrape Google Play, visit developer websites, and take screenshots. You need to configure it as an MCP server in Claude Code.
+The skill needs Playwright for two things:
+- **Node.js package** — to screenshot HTML mockups (Approach A)
+- **MCP Server** — for Claude to scrape Google Play and developer websites
+
+```bash
+# Install the Node.js package (for HTML screenshots)
+npm install -g playwright
+
+# Install the Chromium browser
+npx playwright install chromium
+```
+
+Then configure the MCP server so Claude Code can use browser automation:
 
 **Option A: Use the official Playwright MCP (recommended)**
 
@@ -136,11 +149,6 @@ Create or edit `~/.claude.json` and add:
 ```
 
 With 1 MCP, the agents run sequentially (still works, just slower). With 3, they run in true parallel.
-
-After configuring, install the Chromium browser:
-```bash
-npx playwright install chromium
-```
 
 ---
 
@@ -335,7 +343,7 @@ Run `npx playwright install chromium` to install the browser.
 The QA system catches most issues automatically. If you see consistent problems, try forcing the flux model: edit the skill or pass `--model flux` to the utility script.
 
 ### "sips" command not found
-`sips` is a macOS-only tool. On Linux, install ImageMagick and the skill would need to be adapted to use `convert` instead.
+`sips` is a macOS-only tool (comes preinstalled on all Macs). On Linux/Windows, install ImageMagick and replace `sips -z H W file` with `convert file -resize WxH! file`.
 
 ### Models keep failing
 This usually means models are overloaded on Replicate. The system auto-escalates through 3 tiers (nano-banana-2 → nano-banana-pro → flux-2-flex), giving each 10 attempts. You can also force a specific model: `--model nano`, `--model nano-pro`, or `--model flux`.
